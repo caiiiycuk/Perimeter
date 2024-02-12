@@ -127,8 +127,15 @@ void cSokolRender::SetSimplyMaterialMesh(cObjMesh* mesh, sDataRenderMaterial* da
     SetTexture(1, bump ? nullptr: data->Tex[1], data->MaterialAnimPhase);
 }
 
+extern cObjectNodeRoot* _node_debug;
 void cSokolRender::DrawNoMaterialMesh(cObjMesh* mesh, sDataRenderMaterial* data) {
     //TODO SetPointLight(mesh->GetRootNode()->GetLight());
+
+    if (_node_debug) {
+        if (std::find(_node_debug->GetMeshChild().begin(), _node_debug->GetMeshChild().end(), mesh) != _node_debug->GetMeshChild().end()) {
+            printf("Render\n");
+        }
+    }
 
     SetWorldMatXf(mesh->GetGlobalMatrix());
     activeTex0Transform = Mat4f::ID;

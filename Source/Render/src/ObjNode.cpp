@@ -682,6 +682,7 @@ void cObjectNodeRoot::Animate(float dt)
 	LightIntensity.set(0,0,0,0);
 }
 
+extern cObjectNodeRoot* _node_debug = nullptr;
 void cObjectNodeRoot::PreDraw(cCamera *DrawNode)
 {
 	if(!observer.empty())
@@ -692,6 +693,10 @@ void cObjectNodeRoot::PreDraw(cCamera *DrawNode)
 
 	if(!DrawNode->TestVisible(GetGlobalMatrix(),GlobalBound.min,GlobalBound.max) )
 		return;
+
+//    if (_node_debug) {
+//        printf("Render!\n");
+//    }
 
 	DrawNode->AttachTestShadow(this);
 	Update();

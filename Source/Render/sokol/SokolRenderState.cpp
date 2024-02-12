@@ -66,9 +66,9 @@ int cSokolRender::EndScene() {
         }
 
         //Apply viewport/clip
-        auto& clipPos = command->clipPos;
-        auto& clipSize = command->clipSize;
-        sg_apply_scissor_rect(clipPos.x, clipPos.y, clipSize.x, clipSize.y, true);
+//        auto& clipPos = command->clipPos;
+//        auto& clipSize = command->clipSize;
+//        sg_apply_scissor_rect(clipPos.x, clipPos.y, clipSize.x, clipSize.y, true);
         
         //Get pipeline
         const SokolPipeline* pipeline = pipelines.count(command->pipeline_id) ? pipelines[command->pipeline_id] : nullptr;
@@ -539,8 +539,14 @@ void cSokolRender::SetWorldMat4f(const Mat4f* matrix) {
     RenderSubmitEvent(RenderEvent::SET_WORLD_MATRIX);
 #endif
     if (!matrix) matrix = &Mat4f::ID;
-    if (isOrthographicProjSet || !activeCommandW.eq(*matrix, 0)) {
-        FinishActiveDrawBuffer();
+    if (isOrthographicProjSet) {
+        if (!activeCommandW.eq(*matrix, 0)) {
+            FinishActiveDrawBuffer();
+        }
+
+        if (DrawNode) {
+            SetVPMatrix(&DrawNode->matViewProj);
+        }
     }
     isOrthographicProjSet = false;
     activeCommandW = *matrix;
@@ -560,7 +566,7 @@ void cSokolRender::UseOrthographicProjection() {
     if (!isOrthographicProjSet) {
         FinishActiveDrawBuffer();
     }
-    isOrthographicProjSet = true;
+//    isOrthographicProjSet = true;
 }
 
 void cSokolRender::SetColorMode(eColorMode color_mode) {
@@ -700,7 +706,31 @@ void cSokolRender::SetDrawTransform(class cCamera *pDrawNode)
         pDrawNode->vp.X + pDrawNode->vp.Width,
         pDrawNode->vp.Y + pDrawNode->vp.Height
     );
-    SetVPMatrix(&pDrawNode->matViewProj);
+
+
+    if (pDrawNode->vp.Width == ScreenSize.x && pDrawNode->vp.Height == ScreenSize.y &&
+        pDrawNode->vp.X == 0 && pDrawNode->vp.Y == 0) {
+        auto mat = Mat4f::ID;
+        mat.xx = 0;
+        mat.yy = 0;
+//        SetVPMatrix(&pDrawNode->matViewProj);
+        SetVPMatrix(&mat);
+    } else {
+        auto scale = MatXf::ID;
+        Scale(scale, Vect3f((float) pDrawNode->vp.Width / ScreenSize.x, (float) pDrawNode->vp.Height / ScreenSize.y, 1));
+
+//        auto transform = Mat4f::ID;
+//        transform.zx = pDrawNode->vp.X; // ((float) pDrawNode->vp.Width / ScreenSize.x);
+//        transform.zy = pDrawNode->vp.Y; // ((float) pDrawNode->vp.Height / ScreenSize.y);
+//        transform.zx = 0.3;
+//        transform.zy = 1;
+
+        auto mat = (pDrawNode->matView) * (pDrawNode->matProj  * scale); //* pDrawNode->matViewProjScr;
+        SetVPMatrix(&mat);
+
+//        SetVPMatrix(&pDrawNode->matViewProj);
+    }
+    //SetVPMatrix(&pDrawNode->matViewProj);
     activePipelineMode.cull = pDrawNode->GetAttribute(ATTRCAMERA_REFLECTION) == 0 ? CULL_CW : CULL_CCW;
     CameraCullMode = activePipelineMode.cull;
 }

@@ -111,6 +111,7 @@ void CShellLogicDispatcher::SetState(int ns)
 	m_nState = ns;
 }
 
+extern cObjectNodeRoot* _node_debug;
 void CShellLogicDispatcher::quant(bool game_active)
 {
 	if(_pUnitHover() && !_pUnitHover->alive())
@@ -248,6 +249,8 @@ void CShellLogicDispatcher::quant(bool game_active)
 
 	if(m_hModel && !_bMenuMode)
 	{
+
+        _node_debug = m_hModel;
 		tvModelPosition.rot() *=Mat3f((XM_PI/15)*frame_time.delta()/small_model_rate, Z_AXIS);
 		m_hModel->SetPosition(tvModelPosition);
 //		MatXf mat=m_hModel->GetPosition();

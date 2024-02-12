@@ -501,6 +501,7 @@ int CShellWindow::HitTest(float xT, float yT)
 }
 void CShellWindow::draw(int bFocus)
 {
+    return;
 	if((state & SQSH_VISIBLE) == 0)
 		return;
 
