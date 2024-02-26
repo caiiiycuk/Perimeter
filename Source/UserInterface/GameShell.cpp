@@ -48,6 +48,12 @@
 #include "codepages/codepages.h"
 #include <SDL.h>
 
+
+#define SOKOL_IMGUI_NO_SOKOL_APP
+#include <sokol_gfx.h>
+#include <util/sokol_imgui.h>
+#include <util/sokol_gfx_imgui.h>
+
 int terShowFPS = 0;
 
 CShellIconManager   _shellIconManager;
@@ -1072,6 +1078,8 @@ void GameShell::EventHandler(SDL_Event& event) {
                         } else {
                             MouseLeftUnpressed(where);
                         }
+
+                        simgui_add_mouse_button_event(0, pressed);
                     }
                     break;
                 case SDL_BUTTON_MIDDLE:
@@ -1114,6 +1122,9 @@ void GameShell::EventHandler(SDL_Event& event) {
                 static_cast<float>(event.motion.xrel),
                 static_cast<float>(event.motion.yrel)
             ));
+
+            simgui_add_mouse_pos_event(event.motion.x, event.motion.y);
+
             break;
         }
         case SDL_KEYDOWN:

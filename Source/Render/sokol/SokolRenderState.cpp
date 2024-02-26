@@ -20,6 +20,10 @@
 #include <c/gamepix.h>
 #endif
 
+#define SOKOL_IMGUI_NO_SOKOL_APP
+#include <util/sokol_imgui.h>
+#include <util/sokol_gfx_imgui.h>
+
 int cSokolRender::BeginScene() {
     RenderSubmitEvent(RenderEvent::BEGIN_SCENE, ActiveScene ? "ActiveScene" : "");
     MTG();
@@ -33,6 +37,8 @@ int cSokolRender::BeginScene() {
 
     return cInterfaceRenderDevice::BeginScene();
 }
+
+extern sg_imgui_t* imgui;
 
 int cSokolRender::EndScene() {
     RenderSubmitEvent(RenderEvent::END_SCENE, ActiveScene ? "" : "NotActiveScene");
@@ -204,6 +210,17 @@ int cSokolRender::EndScene() {
         //Draw
         sg_draw(static_cast<int>(command->base_elements), static_cast<int>(command->indices), 1);
     }
+
+    const simgui_frame_desc_t frame_desc = {
+            .width = ScreenSize.x,
+            .height = ScreenSize.y,
+            .delta_time = 16,
+            .dpi_scale = 1.0
+    };
+    simgui_new_frame(&frame_desc);
+    sg_imgui_draw(imgui);
+    sg_imgui_draw_menu(imgui, "sokol-gfx");
+    simgui_render();
 
     //End pass
     sg_end_pass();

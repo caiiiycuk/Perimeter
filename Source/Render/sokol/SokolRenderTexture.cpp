@@ -103,9 +103,9 @@ int cSokolRender::CreateTexture(cTexture* Texture, cFileImage* FileImage, bool e
 
             img = new SokolTexture2D(desc);
 
-#ifdef PERIMETER_DEBUG
+//#ifdef PERIMETER_DEBUG
             img->label = Texture->GetName() + std::to_string(i);
-#endif
+//#endif
         }
 
         Texture->GetFrameImage(i)->sg = img;

@@ -2,6 +2,7 @@
 #include "xmath.h"
 #include "Umath.h"
 #include <sokol_gfx.h>
+#include <sokol_log.h>
 #include "SokolResources.h"
 #include "IRenderDevice.h"
 #include "SokolRender.h"
@@ -11,6 +12,10 @@
 #include "SokolShaders.h"
 #include "RenderTracker.h"
 #include <SDL_hints.h>
+
+#define SOKOL_IMGUI_NO_SOKOL_APP
+#include <util/sokol_imgui.h>
+#include <util/sokol_gfx_imgui.h>
 
 #ifdef SOKOL_GL
 #include <SDL_opengl.h>
@@ -37,6 +42,8 @@ uint32_t cSokolRender::GetWindowCreationFlags() const {
     return flags;
 }
 
+extern sg_imgui_t* imgui = new sg_imgui_t{};
+
 int cSokolRender::Init(int xScr, int yScr, int mode, SDL_Window* wnd, int RefreshRateInHz) {
     RenderSubmitEvent(RenderEvent::INIT, "Sokol start");
     int res = cInterfaceRenderDevice::Init(xScr, yScr, mode, wnd, RefreshRateInHz);
@@ -53,6 +60,7 @@ int cSokolRender::Init(int xScr, int yScr, int mode, SDL_Window* wnd, int Refres
     
     //Prepare sokol gfx desc
     sg_desc desc = {};
+    desc.logger.func = slog_func;
     desc.pipeline_pool_size = PERIMETER_SOKOL_PIPELINES_MAX,
     desc.shader_pool_size = 8,
     desc.buffer_pool_size = 1024 * 8;
@@ -133,6 +141,11 @@ int cSokolRender::Init(int xScr, int yScr, int mode, SDL_Window* wnd, int Refres
     printf("cSokolRender::Init sg_setup done\n");
 #endif
 
+    const simgui_desc_t imgui_desc = {};
+    simgui_setup(&imgui_desc);
+    const sg_imgui_desc_t sg_imgui_desc = { };
+    sg_imgui_init(imgui, &sg_imgui_desc);
+
     //Create sampler
     sg_sampler_desc sampler_desc = {};
     sampler_desc.label = "SamplerLinear";
@@ -141,9 +154,9 @@ int cSokolRender::Init(int xScr, int yScr, int mode, SDL_Window* wnd, int Refres
     sampler_desc.min_lod = 0.0f;
     sampler_desc.max_lod = 0.0f;    // for max_lod, zero-initialized means "FLT_MAX"
     //Filter must be linear for small font textures to not look unreadable
-    sampler_desc.min_filter = SG_FILTER_LINEAR;
-    sampler_desc.mag_filter = SG_FILTER_LINEAR;
-    sampler_desc.mipmap_filter = SG_FILTER_LINEAR;
+    sampler_desc.min_filter = SG_FILTER_NEAREST;
+    sampler_desc.mag_filter = SG_FILTER_NEAREST;
+    sampler_desc.mipmap_filter = SG_FILTER_NONE;
     sampler = sg_make_sampler(sampler_desc);
     
     //Create empty texture

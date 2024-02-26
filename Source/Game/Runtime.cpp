@@ -1050,13 +1050,13 @@ int SDL_main(int argc, char *argv[])
         if (!gpx_ready) {
             gpx_ready = true;
 #ifdef EMSCRIPTEN
-            EM_ASM(({
-                Module["canvas"].addEventListener("pointerdown", () => {
-                    if (!document.pointerLockElement) {
-                        Module["canvas"].requestPointerLock().catch((e) => console.error("Can't lock mouse", e));
-                    }
-                });
-            }));
+//            EM_ASM(({
+//                Module["canvas"].addEventListener("pointerdown", () => {
+//                    if (!document.pointerLockElement) {
+//                        Module["canvas"].requestPointerLock().catch((e) => console.error("Can't lock mouse", e));
+//                    }
+//                });
+//            }));
 #endif
             gpx()->sys()->mainReady(true);
         }
